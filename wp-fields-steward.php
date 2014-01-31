@@ -13,27 +13,21 @@ Author URI: http://chaosoverflow.com/
 License: GPLv2 or later
 */
 
-function adding_box_by_fields_steward($post) {
-    add_meta_box( 
-        'my-meta-box',
-        __('WP-Fields-Steward'),
-        'render_box_by_fields_steward',
-        'post',
-        'normal',
-        'default'
-    );
+function FS_adding_box($post) {
+    add_meta_box('my-meta-box', __('WP-Fields-Steward'), 'FS_render_box', 'post', 'normal', 'default');
 }
-function render_box_by_fields_steward($post, $metabox) {
+function FS_render_box($post, $metabox) {
+	$data = get_post_meta($post->ID, 'FS_source', true);
 	?>
 	<div id="fields_steward_tips" style="display: none;">
 		<p><strong>Example:</strong></p>
 		<p>http://www.youtube.com/watch?v=0lPgJfvskig</p>
 		<p>http://localhost/wp-content/uploads/2014/01/14372.jpg</p>
+		<p><strong>Then run wp_fields_steward() at anywhere.</strong></p>
 	</div>
-	<textarea name="fields_steward" id="fields_steward" placeholder="Paste here."></textarea>
+	<textarea name="fields_steward" id="fields_steward" placeholder="Paste here."><?php echo $data; ?></textarea>
 	<script type="text/javascript">
 	(function() {
-		// Dirty code, will be tried to be improved later.
 		var tips = jQuery("#fields_steward_tips");
 		tips.css({"padding": "5px 24px 10px", "background": "#fafafa"});
 		
@@ -55,14 +49,27 @@ function render_box_by_fields_steward($post, $metabox) {
 	</script>
 	<?php
 }
-add_action('add_meta_boxes_post', 'adding_box_by_fields_steward');
+add_action('add_meta_boxes_post', 'FS_adding_box');
 
-function process_input_data() {
-
+function FS_process_data($post) {
+	$source = $_POST['fields_steward'];
+	$data = split("\n", $source);
+	$meta = '';
+	foreach ($data as $url) {
+		if (preg_match('/youtube\.com\/watch/i', $url)) {
+			$res = str_replace('http://www.youtube.com/watch?v=', '<iframe width="560" height="315" src="//www.youtube.com/embed/', $url);
+			$res .= '" frameborder="0" allowfullscreen></iframe>';
+		}
+		else {
+			$res = '<img src="'.$url.'" />';
+		}
+		$meta .= '<div class="fields_steward_object">'.$res.'</div>'."\n";
+	}
+	update_post_meta($post, 'FS_source', $source);
+	update_post_meta($post, 'FS_html', $meta);
 }
-// http://www.youtube.com/watch?v=0lPgJfvskig
-// <iframe width="560" height="315" src="//www.youtube.com/embed/0lPgJfvskig" frameborder="0" allowfullscreen></iframe>
+add_action('save_post', 'FS_process_data');
 
-function wp_fields_steward() {
-	echo 'test';
+function wp_fields_steward($post) {
+	echo get_post_meta($post, 'FS_html', true);
 }
