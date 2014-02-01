@@ -60,7 +60,7 @@ function FS_process_data($post) {
 	$data = split("\n", $source);
 	$meta = '';
 	foreach ($data as $url) {
-		$url = str_replace("\n", '', $url);
+		$url = str_replace(array("\n", "\r"), '', $url);
 		if (preg_match('/youtube\.com\/watch/i', $url)) {
 			$res = str_replace('http://www.youtube.com/watch?v=', '<iframe width="560" height="315" src="//www.youtube.com/embed/', $url);
 			$res .= '" frameborder="0" allowfullscreen></iframe>';
