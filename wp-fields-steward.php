@@ -13,8 +13,11 @@ Author URI: http://chaosoverflow.com/
 License: GPLv2 or later
 */
 
-function FS_adding_box($post) {
+function FS_adding_box_post($post) {
     add_meta_box('my-meta-box', __('WP-Fields-Steward'), 'FS_render_box', 'post', 'normal', 'default');
+}
+function FS_adding_box_page($post) {
+    add_meta_box('my-meta-box', __('WP-Fields-Steward'), 'FS_render_box', 'page', 'normal', 'default');
 }
 function FS_render_box($post, $metabox) {
 	$data = get_post_meta($post->ID, 'FS_source', true);
@@ -49,7 +52,8 @@ function FS_render_box($post, $metabox) {
 	</script>
 	<?php
 }
-add_action('add_meta_boxes_post', 'FS_adding_box');
+add_action('add_meta_boxes_post', 'FS_adding_box_post');
+add_action('add_meta_boxes_page', 'FS_adding_box_page');
 
 function FS_process_data($post) {
 	$source = $_POST['fields_steward'];
