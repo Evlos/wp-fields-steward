@@ -68,20 +68,21 @@ function FS_process_data($post) {
 		$url = str_replace(array("\n", "\r"), '', $url);
 		// Find out if it is a Youtube video
 		if (preg_match('/youtube\.com\/watch/i', $url)) {
-			$res = str_replace('http://www.youtube.com/watch?v=', '<iframe width="560" height="315" src="//www.youtube.com/embed/', $url);
-			$res .= '" frameborder="0" allowfullscreen></iframe>';
+			$tmp = str_replace('http://www.youtube.com/watch?v=', '<iframe width="560" height="315" src="//www.youtube.com/embed/', $url);
+			$tmp .= '" frameborder="0" allowfullscreen></iframe>';
+			$meta .= '<div class="fields_steward_object fs_video">'.$tmp.'</div>'."\n";
 		}
 		else {
-			// Find out if it contains content of caption
 			$url_split = split('#', $url);
+			// Find out if it contains content of caption
 			if (count($url_split) == 2) {
-				$res = '<img alt="'.$url_split[1].'" src="'.$url_split[0].'" />';
+				$tmp = '<a href="'.$url_split[0].'"><img src="'.$url_split[0].'" /><p class="caption">'.$url_split[1].'</p></a>';
 			}
 			else {
-				$res = '<img src="'.$url.'" />';
+				$tmp = '<a href="'.$url.'"><img src="'.$url.'" /></a>';
 			}
+			$meta .= '<div class="fields_steward_object fs_image">'.$tmp.'</div>'."\n";
 		}
-		$meta .= '<div class="fields_steward_object">'.$res.'</div>'."\n";
 	}
 	// Save data into database
 	update_post_meta($post, 'FS_source', $source);
